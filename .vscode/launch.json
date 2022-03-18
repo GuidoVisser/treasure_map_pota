@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Canvas",
+            "name": "App",
             "type": "python",
             "request": "launch",
-            "program": "canvas.py",
+            "program": "app.py",
             "console": "integratedTerminal"
         },    
         {
