@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Canvas",
+            "type": "python",
+            "request": "launch",
+            "program": "canvas.py",
+            "console": "integratedTerminal"
+        },    
+        {
             "name": "Generate",
             "type": "python",
             "request": "launch",
