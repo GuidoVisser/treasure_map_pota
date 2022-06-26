@@ -1,3 +1,3 @@
-MAP_SIZE = (788, 1000)
+MAP_SIZE = (630, 800) # 0.8 * (788, 1000) because resolution
 MAP_WIDTH = MAP_SIZE[0]
 MAP_HEIGHT = MAP_SIZE[1]

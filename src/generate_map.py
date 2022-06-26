@@ -51,10 +51,10 @@ class Map(object):
         for icon in self.icons:
             map = self.place_icon(map, icon, position)
         
-        cv2.namedWindow("test", cv2.WINDOW_NORMAL)
-        cv2.imshow("test", map)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.namedWindow("test", cv2.WINDOW_NORMAL)
+        # cv2.imshow("test", map)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
         return map
 

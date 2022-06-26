@@ -27,6 +27,10 @@ def move(event):
     global LAST_POSITION
     LAST_POSITION = Position(event.x, event.y, mode="absolute")
 
+    
+
+    # print(event.x / MAP_WIDTH, event.y / MAP_HEIGHT)
+
 class IconButton(object):
     def __init__(self, button_bar, icon, index) -> None:
         super().__init__()
