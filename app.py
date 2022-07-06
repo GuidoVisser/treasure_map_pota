@@ -29,7 +29,8 @@ class MainWindow(QMainWindow):
         self.icon_buttons = []
         for icon in self.map_widget.treasure_map.player_position_dependent_icons:
             button = IconButton(icon)
-            button.clicked.connect(self.icon_button_click)
+            button.clicked.connect(button.set_true_position_visibility)
+            button.clicked.connect(self.map_widget.update_map)
             self.icon_buttons.append(button)
         
         # Export button
@@ -79,18 +80,7 @@ class MainWindow(QMainWindow):
         
         savepath = generate_filename(self.out_dir + "out.png", 0)
         cv2.imwrite(savepath, map_img)
-        
-    def icon_button_click(self) -> None:
-        """change the visibility of the hidden location icon and update the treasure map
-        """
-        
-        # TODO : inefficient solution. I have to loop throught the buttons because I have not 
-        #        found a way to access the instance of the button that was pressed in this function
-        #        Find a better way:
-        #           ideally something like -> button_that_was_pressed = checked
-        for i, button in enumerate(self.icon_buttons):
-            self.map_widget.treasure_map.player_position_dependent_icons[i].show_true_position = button.isChecked()
-        self.map_widget.update_map()
+
         
 class IconButton(QPushButton):
     """Button widget that keeps track if the hidden location icon should be shown on the map
@@ -101,9 +91,13 @@ class IconButton(QPushButton):
         self.setCheckable(True)
         self.setChecked(False)
         
+        self.icon = icon
+        
         self.setIcon(QIcon(icon.image_path))
         self.setIconSize(QSize(MAP_WIDTH // 15, MAP_WIDTH // 15))
 
+    def set_true_position_visibility(self, checked):
+        self.icon.show_true_position = checked
 
 class ExportButton(QPushButton):
     """Button widget for exporting the treasure map
