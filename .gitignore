@@ -1,2 +1,7 @@
 .vscode/
+.DS_Store
 __pycache__/
+treasuremap_pota/treasuremap_pota.xcodeproj*
+
+images/output/*
+.python-version
