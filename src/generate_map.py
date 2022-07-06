@@ -28,24 +28,28 @@ class Map(object):
         Args:
             treasure_map (np.array): current image of the treasure map
             icon (Icon): Icon object that holds the icon image.
-            position (Position): position on the treasure map of the icon
+            position (Position): position on the treasure map of the top-left of the icon
         """
+        # check if the icon is on the map, 
+        if not position.is_in_bbox(-icon.size[1], MAP_WIDTH, -icon.size[0], MAP_HEIGHT):
+            return
 
+        # boundaries on the icon of the parts of the icon that are on the map
         icon_left   = max(-1 * position.x, 0)
         icon_right  = min(icon.size[1], MAP_WIDTH - position.x)
         icon_top    = max(-1 * position.y, 0)
         icon_bottom = min(icon.size[0], MAP_HEIGHT - position.y)
 
-        if position.is_in_bbox(-icon.size[1], MAP_WIDTH, -icon.size[0], MAP_HEIGHT):
-            left   = max(0, position.x)
-            right  = min(MAP_WIDTH, position.x + icon.size[1])
-            top    = max(0, position.y)
-            bottom = min(MAP_HEIGHT, position.y + icon.size[0])
+        alpha      = icon.alpha[icon_top:icon_bottom, icon_left:icon_right]
+        foreground = icon.image[icon_top:icon_bottom, icon_left:icon_right]
 
-            alpha      = icon.alpha[icon_top:icon_bottom, icon_left:icon_right]
-            foreground = icon.image[icon_top:icon_bottom, icon_left:icon_right]
+        # boundaries on the map of the parts of the icon that are on the map
+        left   = max(0, position.x)
+        right  = min(MAP_WIDTH, position.x + icon.size[1])
+        top    = max(0, position.y)
+        bottom = min(MAP_HEIGHT, position.y + icon.size[0])
 
-            treasure_map[top:bottom, left:right] = (1 - alpha) * treasure_map[top:bottom, left:right] + alpha * foreground
+        treasure_map[top:bottom, left:right] = (1 - alpha) * treasure_map[top:bottom, left:right] + alpha * foreground
 
     def render(self, player_position: Position, show_player_icon: bool) -> np.array:
         """Generate an image of the treasure map based on the current position of the players.

@@ -3,16 +3,19 @@ from PyQt6.QtGui import QPixmap, QImage, QIcon, QMouseEvent
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QWidget
 import cv2
 import numpy as np
-from os import path
 
 from constants import MAP_WIDTH, MAP_HEIGHT, MAP_PATH, OUT_DIR
 from src.position import Position
 from src.generate_map import Map
-from src.icons import Icon, ICONS
+from src.icons import PlayerPositionDependentIcon, ICONS
 from src.utils import generate_filename
 
 class MainWindow(QMainWindow):
     """Main window widget. All subwidgets are declared here.
+    
+    Args:
+        treasure_map (Map): Map object that generates the images of the treasure map
+        out_dir (str): directory where the exported images will be saved
     """
     def __init__(self, treasure_map: Map, out_dir: str) -> None:
         super().__init__()
@@ -20,7 +23,6 @@ class MainWindow(QMainWindow):
         # Window properties
         self.setWindowTitle("Treasure Map")
         self.setFixedSize(QSize(int(MAP_WIDTH * 1.3) + 1, int(MAP_HEIGHT * 1.1)))
-        self.out_dir = out_dir
         
         # Map widget
         self.map_widget = MapWidget(treasure_map)
@@ -34,8 +36,7 @@ class MainWindow(QMainWindow):
             self.icon_buttons.append(button)
         
         # Export button
-        export_button = ExportButton()
-        export_button.clicked.connect(self.export_map)
+        export_button = ExportButton(self.map_widget, out_dir)
         
         # Create button layout
         button_layout = QVBoxLayout()
@@ -57,49 +58,16 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(main_layout)
         
         self.setCentralWidget(main_widget)
-        
-    def export_map(self):
-        """Export the image of the map
-        """
-        map_img = self.map_widget.get_map_image(show_player_icon=False)
-        map_img = cv2.cvtColor(map_img, cv2.COLOR_RGB2BGR)
-        
-        savepath = generate_filename(self.out_dir + "out.png", 0)
-        cv2.imwrite(savepath, map_img)
-
-        
-class IconButton(QPushButton):
-    """Button widget that keeps track if the hidden location icon should be shown on the map
-    """
-    def __init__(self, icon: Icon) -> None:
-        super().__init__(icon.name)
-
-        self.setCheckable(True)
-        self.setChecked(False)
-        
-        self.icon = icon
-        
-        self.setIcon(QIcon(icon.image_path))
-        self.setIconSize(QSize(MAP_WIDTH // 15, MAP_WIDTH // 15))
-
-    def set_true_position_visibility(self, checked):
-        self.icon.show_true_position = checked
-
-class ExportButton(QPushButton):
-    """Button widget for exporting the treasure map
-    """
-    def __init__(self) -> None:
-        super().__init__("Export")
-        
-        self.setIcon(QIcon("./images/export.png"))
-        self.setIconSize(QSize(MAP_WIDTH // 40, MAP_WIDTH // 40))
 
 
 class MapWidget(QLabel):
     """Widget that keeps track of the players' position, generates and shows a treasure map based on that position, and
     contains all functionality to change the players' position.
+    
+    Args:
+        treasure_map (Map): Map object that generates the images
     """
-    def __init__(self, treasure_map) -> None:
+    def __init__(self, treasure_map: Map) -> None:
         super().__init__()
         
         self.player_position = Position(183, 503, mode="absolute")
@@ -140,12 +108,13 @@ class MapWidget(QLabel):
         
         pos = Position.from_QPointF(ev.position())
         if self.player_icon_is_selected:
+            
+            # apply offset to prevent icon from snapping to the cursor
             self.player_position = pos - self.mouse_offset_from_player_position
             
-            self.player_position.x = min(self.player_position.x, MAP_WIDTH)
-            self.player_position.x = max(self.player_position.x, 0)
-            self.player_position.y = min(self.player_position.y, MAP_HEIGHT)
-            self.player_position.y = max(self.player_position.y, 0)
+            # ensure icon stays on map, when cursor leaves widget
+            self.player_position.x = min(max(self.player_position.x, 0), MAP_WIDTH)
+            self.player_position.y = min(max(self.player_position.y, 0), MAP_HEIGHT)
             
             self.update_map()
             
@@ -177,6 +146,57 @@ class MapWidget(QLabel):
         """
         self.player_icon_is_selected = False
 
+class IconButton(QPushButton):
+    """Button widget that keeps track if the hidden location icon should be shown on the map
+    
+    Args:
+        icon (PlayerPositionDependentIcon): Icon object that corresponds to the button
+    """
+    def __init__(self, icon: PlayerPositionDependentIcon) -> None:
+        super().__init__(icon.name)
+
+        self.setCheckable(True)
+        self.setChecked(False)
+        
+        self.icon = icon
+        
+        self.setIcon(QIcon(icon.image_path))
+        self.setIconSize(QSize(MAP_WIDTH // 15, MAP_WIDTH // 15))
+
+    def set_true_position_visibility(self, checked: bool) -> None:
+        """sets the visibility of the icon on the map
+
+        Args:
+            checked (bool): state of the isChecked field of the button AFTER it's clicked
+        """
+        self.icon.show_true_position = checked
+
+class ExportButton(QPushButton):
+    """Button widget for exporting the treasure map
+    
+    Args:
+        map_widget (MapWidget): instance of the MapWidget that generates the image that will be exported
+        out_dir (str): directory in which the image will be saved
+    """
+    def __init__(self, map_widget: MapWidget, out_dir: str) -> None:
+        super().__init__("Export")
+        
+        self.map_widget = map_widget
+        self.out_dir = out_dir
+        
+        self.setIcon(QIcon("./images/export.png"))
+        self.setIconSize(QSize(MAP_WIDTH // 40, MAP_WIDTH // 40))
+        
+        self.clicked.connect(self.export_map)
+
+    def export_map(self):
+        """Export the image of the map
+        """
+        map_img = self.map_widget.get_map_image(show_player_icon=False)
+        map_img = cv2.cvtColor(map_img, cv2.COLOR_RGB2BGR)
+        
+        savepath = generate_filename(self.out_dir + "out.png", 0)
+        cv2.imwrite(savepath, map_img)
 
 if __name__ == "__main__":
     app = QApplication([])
