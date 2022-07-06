@@ -9,7 +9,7 @@ from constants import MAP_WIDTH, MAP_HEIGHT, MAP_PATH, OUT_DIR
 from src.position import Position
 from src.generate_map import Map
 from src.icons import Icon, ICONS
-
+from src.utils import generate_filename
 
 class MainWindow(QMainWindow):
     """Main window widget. All subwidgets are declared here.
@@ -48,8 +48,7 @@ class MainWindow(QMainWindow):
 
         # create main layout
         main_layout = QHBoxLayout()
-        # this aligns the cursor position relative to the map widget to the Position instances used to 
-        # calculate the icon positions.
+        # this aligns the cursor position to the Position objects
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         main_layout.addWidget(self.map_widget)
         main_layout.addWidget(button_sidebar)
@@ -62,19 +61,6 @@ class MainWindow(QMainWindow):
     def export_map(self):
         """Export the image of the map
         """
-        def generate_filename(fn, suffix):
-            """recursively generate a unique filename
-            """
-            if path.exists(fn):
-                fn, ext = path.splitext(fn)
-                unique_fn = fn + " (" + str(suffix) + ")" + ext
-                if path.exists(unique_fn):
-                    unique_fn = generate_filename(fn + ext, suffix + 1)
-            else:
-                return fn
-            
-            return unique_fn
-        
         map_img = self.map_widget.get_map_image(show_player_icon=False)
         map_img = cv2.cvtColor(map_img, cv2.COLOR_RGB2BGR)
         
