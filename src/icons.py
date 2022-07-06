@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 from math import sin, cos
 
 from constants import MAP_WIDTH, MAP_HEIGHT

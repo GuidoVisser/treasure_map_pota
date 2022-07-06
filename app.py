@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBo
 import cv2
 import numpy as np
 from os import path
-import re
 
 from constants import MAP_WIDTH, MAP_HEIGHT, MAP_PATH, OUT_DIR
 from src.position import Position
