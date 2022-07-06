@@ -3,7 +3,7 @@ from constants import MAP_HEIGHT, MAP_WIDTH
 from PyQt6.QtCore import QPointF
 
 class Position(object):
-    """_summary_
+    """Position object to easily compare and manipulate the positions of map elements
 
     Args:
         x (int): x coordinate
@@ -12,7 +12,7 @@ class Position(object):
             In "relative" mode the coordinates are internally defined on the interval [0,1]
             In "absolute" mode the coordinates are internally defined on the interval [0, MAP_SIZE]
     """
-    def __init__(self, x: int, y: int, mode="relative") -> None:
+    def __init__(self, x: int, y: int, mode: str="relative") -> None:
         super().__init__()
         
         assert mode in ["relative", "absolute"]
@@ -20,14 +20,13 @@ class Position(object):
 
         self.x = x
         self.y = y
-        self.pos = (self.x, self.y)
 
     @staticmethod
     def from_QPointF(qpos: QPointF):
         """generate a Position object with the coordinates of the given QPointF object
 
         Args:
-            qpos (QPointF): PyQt6 position object relative the the map widget
+            qpos (QPointF): PyQt6 position object relative to the map widget
 
         Returns:
             Position:  Instance of this class with the given coordinates
@@ -59,7 +58,7 @@ class Position(object):
             return round(MAP_WIDTH * self._x)
 
     @x.setter
-    def x(self, val) -> None:
+    def x(self, val: int) -> None:
         self._x = val
 
     @property
@@ -70,7 +69,7 @@ class Position(object):
             return round(MAP_HEIGHT * self._y)
     
     @y.setter
-    def y(self, val) -> None:
+    def y(self, val: int) -> None:
         self._y = val
 
     def __add__(self, other):
