@@ -28,12 +28,9 @@ class MainWindow(QMainWindow):
         self.map_widget = MapWidget(treasure_map)
 
         # Icon button widgets
-        self.icon_buttons = []
-        for icon in self.map_widget.treasure_map.player_position_dependent_icons:
-            button = IconButton(icon)
-            button.clicked.connect(button.set_true_position_visibility)
-            button.clicked.connect(self.map_widget.update_map)
-            self.icon_buttons.append(button)
+        self.icon_buttons = [IconButton(icon, self.map_widget)
+                             for icon
+                             in self.map_widget.treasure_map.player_position_dependent_icons]
         
         # Export button
         export_button = ExportButton(self.map_widget, out_dir)
@@ -151,17 +148,22 @@ class IconButton(QPushButton):
     
     Args:
         icon (PlayerPositionDependentIcon): Icon object that corresponds to the button
+        map_widget (MapWidget): MapWidget object for updating the map image
     """
-    def __init__(self, icon: PlayerPositionDependentIcon) -> None:
+    def __init__(self, icon: PlayerPositionDependentIcon, map_widget: MapWidget) -> None:
         super().__init__(icon.name)
 
         self.setCheckable(True)
         self.setChecked(False)
         
         self.icon = icon
+        self.map_widget = map_widget
         
         self.setIcon(QIcon(icon.image_path))
         self.setIconSize(QSize(MAP_WIDTH // 15, MAP_WIDTH // 15))
+
+        self.clicked.connect(self.set_true_position_visibility)
+        self.clicked.connect(self.map_widget.update_map)
 
     def set_true_position_visibility(self, checked: bool) -> None:
         """sets the visibility of the icon on the map
