@@ -33,6 +33,19 @@ class Position(object):
         """
         return Position(int(qpos.x()), int(qpos.y()), mode="absolute")
 
+    @staticmethod
+    def from_tuple(tuple: tuple, mode: str = "relative"):
+        """generate a Position object with the coordinates of the given tuple
+
+        Args:
+            tuple (tuple): tuple of the for (x, y)
+            mode (str, optional): specifies the mode of the position. Defaults to "relative"
+
+        Returns:
+            Position:  Instance of this class with the given coordinates
+        """
+        return Position(tuple[0], tuple[1], mode=mode)
+
     def is_in_bbox(self, left: int, right: int, top: int, bottom: int) -> bool:
         """Checks whether this position is contained in a given bounding box
 

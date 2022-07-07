@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBo
 import cv2
 import numpy as np
 
-from constants import MAP_WIDTH, MAP_HEIGHT, MAP_PATH, OUT_DIR
+from constants import INITIAL_PLAYER_POSITION, MAP_WIDTH, MAP_HEIGHT, MAP_PATH, OUT_DIR
 from src.position import Position
 from src.generate_map import Map
 from src.icons import PlayerPositionDependentIcon, ICONS
@@ -67,7 +67,7 @@ class MapWidget(QLabel):
     def __init__(self, treasure_map: Map) -> None:
         super().__init__()
         
-        self.player_position = Position(183, 503, mode="absolute")
+        self.player_position = Position.from_tuple(INITIAL_PLAYER_POSITION)
         self.treasure_map = treasure_map
         
         self.update_map()
