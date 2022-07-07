@@ -18,7 +18,7 @@ class Map(object):
                  player_position_dependent_icons: Tuple[PlayerPositionDependentIcon]) -> None:
         super().__init__()
 
-        self.background = cv2.cvtColor(cv2.resize(cv2.imread(map_path), MAP_SIZE), cv2.COLOR_RGB2BGR)
+        self.background = cv2.cvtColor(cv2.resize(cv2.imread(map_path), MAP_SIZE, interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2BGR)
         self.player_position_dependent_icons = player_position_dependent_icons
         self.player_icon = Icon("player", img_path="images/icons/aluminium.png")
 

@@ -1,3 +1,4 @@
+from ctypes.wintypes import PBOOLEAN
 import cv2
 from math import sin, cos
 
@@ -26,7 +27,7 @@ class Icon(object):
           self.image_path = img_path
           self.img_offset = img_offset
 
-          img = cv2.resize(cv2.imread(img_path, cv2.IMREAD_UNCHANGED), (int(0.04 * MAP_HEIGHT), int(0.04 * MAP_HEIGHT)))
+          img = cv2.resize(cv2.imread(img_path, cv2.IMREAD_UNCHANGED), (int(0.04 * MAP_HEIGHT), int(0.04 * MAP_HEIGHT)), interpolation=cv2.INTER_AREA)
           self.alpha = img[:, :, 3:4] // 255
           self.image = img[:, :, 0:3]
           
