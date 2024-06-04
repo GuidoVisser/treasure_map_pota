@@ -17,10 +17,14 @@ To use the GUI simply drag the player icon to the correct location and press exp
 ## Installation
 In order to install make sure you have python 3 installed. Clone this repository and run the following command in the terminal
 
-```pip install -r requirements.txt```
+```poetry install```
 
 ## Running the program
-Open the directory in which you have installed the program in a terminal and run the command
+Open the directory in which you have installed the program in a terminal, open the poetry shell
+
+```poetry shell```
+
+and run the command
 
 ```python app.py```
 

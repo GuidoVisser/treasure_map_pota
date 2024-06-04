@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "treasure-map-pota"
+version = "0.1.0"
+description = ""
+authors = ["Guido <guido-visser@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+cycler = "^0.12.1"
+fonttools = "^4.53.0"
+kiwisolver = "^1.4.5"
+klembord = "^0.3.0"
+matplotlib = "^3.9.0"
+numpy = "^1.26.4"
+opencv-python = "^4.10.0.82"
+packaging = "^24.0"
+pillow = "^10.3.0"
+pyparsing = "^3.1.2"
+six = "^1.16.0"
+stopit = "^1.1.2"
+pyqt6 = "^6.7.0"
+python-xlib = "^0.26"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
