@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QPixmap, QImage, QIcon, QMouseEvent
+from PyQt6.QtGui import QPixmap, QImage, QIcon, QMouseEvent, QCursor
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QWidget
 import cv2
 import numpy as np
@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(QSize(int(MAP_WIDTH * 1.3) + 1, int(MAP_HEIGHT * 1.1)))
         
         # Map widget
-        self.map_widget = MapWidget(treasure_map)
+        self.map_widget = MapWidget(treasure_map, self)
 
         # Icon button widgets
         self.icon_buttons = [IconButton(icon, self.map_widget)
@@ -64,16 +64,45 @@ class MapWidget(QLabel):
     Args:
         treasure_map (Map): Map object that generates the images
     """
-    def __init__(self, treasure_map: Map) -> None:
+    def __init__(self, treasure_map: Map, window: QMainWindow) -> None:
         super().__init__()
         
         self.player_position = Position.from_tuple(INITIAL_PLAYER_POSITION)
         self.treasure_map = treasure_map
+        self._window = window
+        self.setMouseTracking(True)
         
         self.update_map()
         
         self.player_icon_is_selected = False
+        self.player_icon_is_hovered = False
         self.mouse_offset_from_player_position = Position(0, 0)
+
+    def is_on_player_icon(self, pos: Position):
+        return pos.is_in_bbox(self.player_position.x - self.treasure_map.player_icon.size[0] // 2, 
+                              self.player_position.x + self.treasure_map.player_icon.size[0] // 2,
+                              self.player_position.y - self.treasure_map.player_icon.size[1] // 2, 
+                              self.player_position.y + self.treasure_map.player_icon.size[1] // 2)
+
+    def get_cursor_shape(self):
+        """Gets the cursor shape based on the state of MapWidget
+
+        Returns:
+            Qt.CursorShape
+        """
+        if self.player_icon_is_selected:
+            return Qt.CursorShape.ClosedHandCursor
+        else:
+            if self.player_icon_is_hovered:
+                return Qt.CursorShape.OpenHandCursor
+            else:
+                return Qt.CursorShape.ArrowCursor
+    
+    def set_cursor_shape(self):
+        """Sets the cursor shape based on the state of MapWidget
+        """
+        shape = self.get_cursor_shape()
+        self._window.setCursor(QCursor(shape))
 
     def update_map(self) -> None:
         """generate a new image for the Map widget and update the widget
@@ -114,6 +143,11 @@ class MapWidget(QLabel):
             self.player_position.y = min(max(self.player_position.y, 0), MAP_HEIGHT)
             
             self.update_map()
+        else:
+            self.player_icon_is_hovered = self.is_on_player_icon(pos)
+        
+        self.set_cursor_shape()
+            
             
     def mousePressEvent(self, ev: QMouseEvent) -> None:
         """Check if the current mouse position is within the bounding box of the player icon and
@@ -126,14 +160,13 @@ class MapWidget(QLabel):
         pos = Position.from_QPointF(ev.position())
         
         # check if the mouse is on the player icon
-        if pos.is_in_bbox(self.player_position.x - self.treasure_map.player_icon.size[0] // 2, 
-                          self.player_position.x + self.treasure_map.player_icon.size[0] // 2,
-                          self.player_position.y - self.treasure_map.player_icon.size[1] // 2, 
-                          self.player_position.y + self.treasure_map.player_icon.size[1] // 2):
-            
+        if self.is_on_player_icon(pos):
+
             # set selected to True and store offset to center of image to prevent the icon from snapping to the cursor
             self.player_icon_is_selected = True
             self.mouse_offset_from_player_position = pos - self.player_position
+        
+        self.set_cursor_shape()
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
         """Set the player_icon_is_selected to false so the icon can be dragged and dropped only when selected
@@ -142,6 +175,12 @@ class MapWidget(QLabel):
             ev (QMouseEvent): PyQt6 mouse event
         """
         self.player_icon_is_selected = False
+        self.set_cursor_shape()
+        
+    def leaveEvent(self, ev: QMouseEvent) -> None:
+        self.player_icon_is_selected = False
+        self.player_icon_is_hovered = False
+        self.set_cursor_shape()
 
 class IconButton(QPushButton):
     """Button widget that keeps track if the hidden location icon should be shown on the map
